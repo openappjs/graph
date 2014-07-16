@@ -1,0 +1,25 @@
+{
+  "name": "opensql",
+  "version": "0.0.0",
+  "description": "OpenApp SQL data store",
+  "main": "index.js",
+  "scripts": {
+    "test": "mocha --recursive test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com/open-app/sql"
+  },
+  "author": "open-app",
+  "license": "AGPLv3",
+  "bugs": {
+    "url": "https://github.com/open-app/sql/issues"
+  },
+  "homepage": "https://github.com/open-app/sql",
+  "dependencies": {
+    "mongo-sql": "^2.5.7",
+    "node-uuid": "^1.4.1",
+    "opendata": "git://github.com/open-app/data",
+    "uberproto": "^1.1.2"
+  }
+}
