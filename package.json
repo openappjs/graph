@@ -1,25 +1,27 @@
 {
-  "name": "opensql",
+  "name": "oa-graph",
   "version": "0.0.0",
-  "description": "OpenApp SQL data store",
+  "description": "OpenApp graph data store",
   "main": "index.js",
   "scripts": {
     "test": "mocha --recursive test"
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com/open-app/sql"
+    "url": "git://github.com/open-app/graph"
   },
   "author": "open-app",
   "license": "AGPLv3",
   "bugs": {
-    "url": "https://github.com/open-app/sql/issues"
+    "url": "https://github.com/open-app/graph/issues"
   },
-  "homepage": "https://github.com/open-app/sql",
+  "homepage": "https://github.com/open-app/graph",
   "dependencies": {
-    "mongo-sql": "^2.5.7",
+    "bluebird": "^2.2.2",
+    "debug": "^1.0.4",
+    "jsonld": "^0.2.17",
+    "lodash": "^2.4.1",
     "node-uuid": "^1.4.1",
-    "opendata": "git://github.com/open-app/data",
-    "uberproto": "^1.1.2"
+    "oa-types": "git://github.com/open-app/types"
   }
 }

@@ -1,96 +1,109 @@
+var debug = require('debug')("oa-graph");
 var uuid = require('node-uuid');
-var Proto = require('uberproto');
-var MoSQL = require('mongo-sql');
-var OpenData = require('opendata');
+var Promise = require('bluebird');
+var jsonld = require('jsonld').promises();
 
-var normalize = function (Data, data) {
+var lib = require('./lib');
+
+var normalize = function (data) {
   // if string, it must be id
   if (typeof data === 'string') {
-    data = { id: data };
+    data = { '@id': data };
   }
-  // OpenData-ify if not already
-  if (!data.__OpenData) {
-    data = Data(data);
-  }
-  return data
+  return data;
 }
 
-var Store = Proto.extend({
+function Graph (options) {
+  debug("constructor", options);
 
-  init: function (options) {
-    this.knex = options.knex;
-    this.tableName = options.tableName;
-    this.schema = options.schema;
-    this.jjv = options.jjv;
-    this.opendata = OpenData(this.jjv);
-    this.Data = this.opendata(this.schema);
-  },
+  this.db = Promise.promisifyAll(options.db);
+  this.db.jsonld = Promise.promisifyAll(this.db.jsonld);
 
-  find: function (params) {
-    return this.knex(this.tableName)
-    .bind(this)
-    .map(function (result) {
-      return this.Data(result);
-    })
-    ;
-  },
+  this.name = options.name;
 
-  get: function (data, params) {
-    data = normalize(this.Data, data);
+  if (this.types) {
+    this.types = options.types;
+  } else {
+    this.types = require('oa-types')();
+  }
 
-    return this.knex(this.tableName)
-    .where('id', data.id)
-    .limit(1)
-    .bind(this)
-    .then(function (results) {
-      if (results.length === 0) {
-        return null;
-      }
-      return this.Data(results[0]);
-    })
-    ;
-  },
+  if (typeof this.type === 'string') {
+    this.type = this.types.get(this.type);
+  } else {
+    this.types.set(options.type);
+    this.type = this.types.get(options.type.name);
+  }
+}
 
-  create: function (data, params) {
-    data = normalize(this.Data, data);
-
-    if (!data.id) {
-      data.id = uuid();
-    }
-
-    return this.knex(this.tableName)
-    .insert(data.toJSON())
-    .return(data)
-    ;
-  },
-
-  update: function (data, params) {
-    data = normalize(this.Data, data);
-
-    // TODO recurse into memberships
-
-    console.log(data);
-
-    return this.knex(this.tableName)
-    .where('id', data.id)
-    .update(data.toJSON())
-    .return(data)
-    ;
-  },
-
-  remove: function (data, params) {
-    data = normalize(this.Data, data);
-
-    return this.knex(this.tableName)
-    .where('id', data.id)
-    .del()
-    .return(null)
-    ;
-  },
-});
-
-module.exports = function () {
-  return Proto.create.apply(Store, arguments);
+Graph.prototype.find = function (params) {
+  debug("find", params);
+  return this.db.searchAsync({
+    subject: "",
+  })
+  .bind(this)
+  .map(function (result) {
+    return this.data(result);
+  })
+  .then(function (results) {
+    debug("find output", results)
+    return results;
+  })
+  ;
 };
 
-module.exports.Store = Store;
+Graph.prototype.get = function (data, params) {
+  data = normalize(data);
+  debug("get input", data, params);
+
+  return this.db.jsonld
+  .getAsync(data['@id'], this.type.context())
+  .then(function (result) {
+    debug("get output", result)
+    return result;
+  })
+  ;
+};
+
+Graph.prototype.create = function (data, params) {
+  data = normalize(data);
+  data = lib.ensureType(data, this.type.name);
+  debug("create", data, params);
+
+  // TODO recurse into memberships
+
+  return this.db.jsonld
+  .putAsync(data)
+  .then(function (result) {
+    debug("create output", result)
+    return result;
+  })
+  ;
+};
+
+Graph.prototype.update = function (data, params) {
+  data = normalize(data);
+  data = lib.ensureType(data, this.type.name);
+  debug("update input", data, params);
+
+  // TODO recurse into memberships
+
+  return this.db.jsonld
+  .putAsync(data)
+  .then(function (result) {
+    debug("update output", result)
+    return result;
+  })
+  ;
+};
+
+Graph.prototype.remove = function (data, params) {
+  data = normalize(data);
+  debug("remove", data, params);
+
+  return this.db.jsonld
+  .del(data['@id'])
+  .return(null)
+  ;
+};
+
+module.exports = Graph;
