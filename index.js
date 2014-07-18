@@ -36,6 +36,7 @@ function Graph (options) {
 }
 
 Graph.prototype.find = function (params) {
+  // TODO implement
   debug("find", params);
   return this.db.searchAsync({
     subject: "",
