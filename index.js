@@ -29,7 +29,8 @@ function Graph (options) {
 
 Graph.prototype.find = function (params) {
   // TODO implement
-  debug("find", params);
+  debug("find input", params);
+
   return this.db.searchAsync({
     subject: "",
   })
@@ -48,6 +49,9 @@ Graph.prototype.get = function (data, params) {
   debug("get input", data, params);
 
   data = lib.normalize(data);
+
+  debug(".get(", data['@id'], this.type.context(), ")");
+
   return this.db.jsonld
   .getAsync(data['@id'], this.type.context())
   .then(function (result) {
@@ -58,12 +62,15 @@ Graph.prototype.get = function (data, params) {
 };
 
 Graph.prototype.create = function (data, params) {
+  debug("create input", data, params);
+
   data = lib.normalize(data);
   data = lib.ensureType(data, this.type.name);
-  debug("create", data, params);
 
   // TODO recurse into memberships
 
+  debug(".put(", data, ")");
+  
   return this.db.jsonld
   .putAsync(data)
   .then(function (result) {
@@ -79,6 +86,7 @@ Graph.prototype.update = function (data, params) {
 
   data = lib.normalize(data);
   // TODO recurse into memberships
+  debug(".put(", data, ")");
 
   return this.db.jsonld
   .putAsync(data)
@@ -90,13 +98,18 @@ Graph.prototype.update = function (data, params) {
 };
 
 Graph.prototype.remove = function (data, params) {
-  debug("remove", data, params);
+  debug("remove input", data, params);
 
   data = lib.normalize(data);
 
+  debug(".del(", data['@id'], ")");
+
   return this.db.jsonld
   .del(data['@id'])
-  .return(null)
+  .then(function () {
+    debug("remove output", null)
+    return null;
+  })
   ;
 };
 
