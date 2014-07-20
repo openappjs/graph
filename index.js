@@ -2,6 +2,7 @@ var debug = require('debug')("oa-graph");
 var uuid = require('node-uuid');
 var Promise = require('bluebird');
 var jsonld = require('jsonld').promises();
+var _ = require('lodash');
 
 var lib = require('./lib');
 
@@ -56,6 +57,10 @@ Graph.prototype.get = function (data, params) {
   .getAsync(data['@id'], this.type.context())
   .then(function (result) {
     debug("get output", result)
+    // TODO why is result an array?
+    if (_.isArray(result)) {
+      return result[0];
+    }
     return result;
   })
   ;
