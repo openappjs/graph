@@ -35,10 +35,6 @@ Graph.prototype.find = function (params) {
   return this.db.searchAsync({
     subject: "",
   })
-  .bind(this)
-  .map(function (result) {
-    return this.data(result);
-  })
   .then(function (results) {
     debug("find output", results)
     return results;
