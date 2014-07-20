@@ -88,10 +88,10 @@ Graph.prototype.create = function (data, params) {
 };
 
 Graph.prototype.update = function (data, params) {
-  data = lib.ensureType(data, this.type.name);
   debug("update input", data, params);
 
   data = lib.normalize(data);
+  data = lib.ensureType(data, this.type.name);
   data['@context'] = this.type.context();
   
   debug(".put(", data, ")");
