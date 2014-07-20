@@ -109,7 +109,7 @@ Graph.prototype.remove = function (data, params) {
   debug(".del(", data['@id'], ")");
 
   return this.db.jsonld
-  .del(data['@id'])
+  .delAsync(data['@id'])
   .then(function () {
     debug("remove output", null)
     return null;
