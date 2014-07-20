@@ -71,8 +71,10 @@ Graph.prototype.create = function (data, params) {
 
   data = lib.normalize(data);
   data = lib.ensureType(data, this.type.name);
+  data['@context'] = this.type.context();
 
-  // TODO recurse into memberships
+  // TODO recurse into references so they
+  // are not created as empty nodes
 
   debug(".put(", data, ")");
   
@@ -90,7 +92,8 @@ Graph.prototype.update = function (data, params) {
   debug("update input", data, params);
 
   data = lib.normalize(data);
-  // TODO recurse into memberships
+  data['@context'] = this.type.context();
+  
   debug(".put(", data, ")");
 
   return this.db.jsonld
