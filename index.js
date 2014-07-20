@@ -5,14 +5,6 @@ var jsonld = require('jsonld').promises();
 
 var lib = require('./lib');
 
-var normalize = function (data) {
-  // if string, it must be id
-  if (typeof data === 'string') {
-    data = { '@id': data };
-  }
-  return data;
-}
-
 function Graph (options) {
   debug("constructor", options);
 
@@ -53,9 +45,9 @@ Graph.prototype.find = function (params) {
 };
 
 Graph.prototype.get = function (data, params) {
-  data = normalize(data);
   debug("get input", data, params);
 
+  data = lib.normalize(data);
   return this.db.jsonld
   .getAsync(data['@id'], this.type.context())
   .then(function (result) {
@@ -66,7 +58,7 @@ Graph.prototype.get = function (data, params) {
 };
 
 Graph.prototype.create = function (data, params) {
-  data = normalize(data);
+  data = lib.normalize(data);
   data = lib.ensureType(data, this.type.name);
   debug("create", data, params);
 
@@ -82,10 +74,10 @@ Graph.prototype.create = function (data, params) {
 };
 
 Graph.prototype.update = function (data, params) {
-  data = normalize(data);
   data = lib.ensureType(data, this.type.name);
   debug("update input", data, params);
 
+  data = lib.normalize(data);
   // TODO recurse into memberships
 
   return this.db.jsonld
@@ -98,8 +90,9 @@ Graph.prototype.update = function (data, params) {
 };
 
 Graph.prototype.remove = function (data, params) {
-  data = normalize(data);
   debug("remove", data, params);
+
+  data = lib.normalize(data);
 
   return this.db.jsonld
   .del(data['@id'])
