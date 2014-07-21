@@ -116,4 +116,6 @@ Graph.prototype.remove = function (data, params) {
   ;
 };
 
+Graph.isGraph = require('./isGraph');
+
 module.exports = Graph;
