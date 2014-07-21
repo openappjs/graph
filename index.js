@@ -20,11 +20,10 @@ function Graph (options) {
     this.types = require('oa-types')();
   }
 
-  if (typeof this.type === 'string') {
+  if (typeof options.type === 'string') {
     this.type = this.types.get(this.type);
   } else {
-    this.types.set(options.type);
-    this.type = this.types.get(options.type.name);
+    this.type = this.types.use(options.type);
   }
 }
 
