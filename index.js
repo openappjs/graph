@@ -21,7 +21,7 @@ function Graph (options) {
   }
 
   if (typeof options.type === 'string') {
-    this.type = this.types.get(this.type);
+    this.type = this.types.get(options.type);
   } else {
     this.type = this.types.use(options.type);
   }
