@@ -14,7 +14,7 @@ function Graph (options) {
 
   this.name = options.name;
 
-  if (this.types) {
+  if (options.types) {
     this.types = options.types;
   } else {
     this.types = require('oa-types')();
