@@ -12,7 +12,7 @@ function Graph (options) {
   this.db = Promise.promisifyAll(options.db);
   this.db.jsonld = Promise.promisifyAll(this.db.jsonld);
 
-  this.name = options.name;
+  this.id = options.id;
 
   if (options.types) {
     this.types = options.types;
@@ -65,7 +65,7 @@ Graph.prototype.create = function (data, params) {
   debug("create input", data, params);
 
   data = lib.normalize(data);
-  data = lib.ensureType(data, this.type.name);
+  data = lib.ensureType(data, this.type.id);
   data['@context'] = this.type.context();
 
   // TODO recurse into references so they
@@ -86,7 +86,7 @@ Graph.prototype.update = function (data, params) {
   debug("update input", data, params);
 
   data = lib.normalize(data);
-  data = lib.ensureType(data, this.type.name);
+  data = lib.ensureType(data, this.type.id);
   data['@context'] = this.type.context();
   
   debug(".put(", data, ")");
