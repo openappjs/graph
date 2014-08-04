@@ -32,9 +32,13 @@ function Graph (options) {
 Graph.prototype.find = function (params) {
   debug("find input", params);
 
-  params['@context'] = this.type.context();
+  params = params || {};
+  params.query = params.query || {};
 
-  return this.queryize(params)
+  params.query['@context'] = this.type.context();
+  params.query['@type'] = params.query['@type'] || this.type.id;
+
+  return this.queryize(params.query)
   .bind(this)
   .then(function (query) {
     debug("find query", query);

@@ -105,11 +105,36 @@ describe("#Graph", function () {
       .then(function (results) {
         expect(Array.isArray(results)).to.be.true;
         expect(results).to.have.length(1);
+        expect(results[0]).to.have.property('@type', "Person");
+        expect(results[0]).to.have.property('name', "Mikey");
+      })
+      ;
+    });
+
+    it("should implicitly add type to simple query", function () {
+      return Resources.create({
+        name: "Mikey",
+      })
+      .then(function () {
+        return People.create({
+          name: "Mikey",
+        })
+      })
+      .then(function (person) {
+        return People.find({
+          name: "Mikey",
+        });
+      })
+      .then(function (results) {
+        expect(Array.isArray(results)).to.be.true;
+        expect(results).to.have.length(1);
+        expect(results[0]).to.have.property('@type', "Person");
         expect(results[0]).to.have.property('name', "Mikey");
       })
       ;
     });
   });
+
 
   describe("relations", function () {
 
