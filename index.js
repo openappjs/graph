@@ -25,17 +25,27 @@ function Graph (options) {
   } else {
     this.type = this.types.use(options.type);
   }
+
+  this.queryize = Promise.promisify(lib.queryize(this.db));
 }
 
 Graph.prototype.find = function (params) {
-  // TODO implement
   debug("find input", params);
 
-  return this.db.searchAsync({
-    subject: "",
+  params['@context'] = this.type.context();
+
+  return this.queryize(params)
+  .bind(this)
+  .then(function (query) {
+    debug("find query", query);
+    return this.db.searchAsync(query);
+  })
+  .map(function (result) {
+    return this.get(result['@id']);
+
   })
   .then(function (results) {
-    debug("find output", results)
+    debug("find output", results);
     return results;
   })
   ;
