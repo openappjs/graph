@@ -6,6 +6,7 @@ var deleteStream = require('level-delete-stream');
 describe("#Graph", function () {
   var leveldb, db;
   var Graph;
+  var People, Resources;
 
   before(function () {
     var level = require('level-test')();
@@ -15,16 +16,50 @@ describe("#Graph", function () {
     , {
       base: "http://open.app/",
     });
+
+    Graph = require('../');
+
+    var types = require('oa-types')();
+    var PersonType = types.use({
+      id: "Person",
+      type: 'object',
+      properties: {
+        name: {
+          type: "string",
+        },
+        resources: {
+          reverse: "owner",
+          $ref: "Resource",
+        },
+      },
+    });
+    var ResourceType = types.use({
+      id: "Resource",
+      type: 'object',
+      properties: {
+        name: {
+          type: "string",
+        },
+        owner: {
+          $ref: "Person",
+        },
+      },
+    });
+    People = new Graph({
+      id: "People",
+      db: db,
+      type: PersonType,
+    });
+    Resources = new Graph({
+      id: "Resources",
+      db: db,
+      type: ResourceType,
+    });
   });
 
   beforeEach(function (done) {
     return leveldb.createKeyStream()
     .pipe(deleteStream(leveldb, done))
-  });
-
-  it("should load module", function () {
-    Graph = require('../');
-    expect(Graph).to.exist;
   });
 
   describe("Graph.isGraph()", function () {
@@ -47,45 +82,28 @@ describe("#Graph", function () {
     });
   });
 
+  describe("find", function () {
+    it("should find based on simple query", function () {
+      return People.create({
+        name: "Mikey",
+      })
+      .then(function (person) {
+        return People.find({
+          name: "Mikey",
+        });
+      })
+      .then(function (results) {
+        expect(Array.isArray(results)).to.be.true;
+        expect(results).to.have.length(1);
+        expect(results[0]).to.have.property('name', "Mikey");
+      })
+      ;
+    });
+  });
+
   describe("relations", function () {
 
     it("should have hasMany <> belongsTo relation", function () {
-      var types = require('oa-types')();
-      var PersonType = types.use({
-        id: "Person",
-        type: 'object',
-        properties: {
-          name: {
-            type: "string",
-          },
-          resources: {
-            reverse: "owner",
-            $ref: "Resource",
-          },
-        },
-      });
-      var ResourceType = types.use({
-        id: "Resource",
-        type: 'object',
-        properties: {
-          name: {
-            type: "string",
-          },
-          owner: {
-            $ref: "Person",
-          },
-        },
-      });
-      var People = new Graph({
-        id: "People",
-        db: db,
-        type: PersonType,
-      });
-      var Resources = new Graph({
-        id: "Resources",
-        db: db,
-        type: ResourceType,
-      });
 
       var id;
 
