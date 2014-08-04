@@ -12,7 +12,9 @@ describe("#Graph", function () {
     leveldb = level(env+'.db');
     db = require('levelgraph-jsonld')(
       require('levelgraph')(leveldb)
-    );
+    , {
+      base: "http://open.app/",
+    });
   });
 
   beforeEach(function (done) {
