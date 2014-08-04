@@ -18,8 +18,8 @@ describe("#Graph", function () {
   });
 
   beforeEach(function (done) {
-    return db.createKeyStream()
-    .pipe(deleteStream(db, done))
+    return leveldb.createKeyStream()
+    .pipe(deleteStream(leveldb, done))
   });
 
   it("should load module", function () {
