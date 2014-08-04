@@ -29,16 +29,14 @@ describe("#Graph", function () {
 
     it("of simple graph should be true", function () {
       var graph = new Graph({
-        name: "things",
+        id: "Things",
         db: db,
         type: {
-          name: "Thing",
-          schema: {
-            type: 'object',
-            properties: {
-              description: {
-                type: 'string',
-              },
+          id: "Thing",
+          type: 'object',
+          properties: {
+            description: {
+              type: 'string',
             },
           },
         },
