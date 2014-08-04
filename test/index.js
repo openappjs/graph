@@ -23,11 +23,16 @@ describe("#Graph", function () {
     var PersonType = types.use({
       id: "Person",
       type: 'object',
+      prefixes: {
+        "": "http://open.vocab/",
+      },
       properties: {
         name: {
+          context: "name",
           type: "string",
         },
         resources: {
+          context: "hasResource",
           reverse: "owner",
           $ref: "Resource",
         },
@@ -36,11 +41,16 @@ describe("#Graph", function () {
     var ResourceType = types.use({
       id: "Resource",
       type: 'object',
+      prefixes: {
+        "": "http://open.vocab/",
+      },
       properties: {
         name: {
+          context: "name",
           type: "string",
         },
         owner: {
+          context: "isOwner",
           $ref: "Person",
         },
       },
