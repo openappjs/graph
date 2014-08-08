@@ -51,8 +51,9 @@ Graph.prototype.find = function (params) {
     return this.db.searchAsync(query);
   })
   .map(function (result) {
-    return this.get(result['@id']);
-
+    return this.get(result['@id'], {
+      exclude: params.exclude,
+    });
   })
   .then(function (results) {
     debug("find output", results);
@@ -61,21 +62,40 @@ Graph.prototype.find = function (params) {
   ;
 };
 
+// TODO params can specify properties to not return
 Graph.prototype.get = function (data, params) {
   debug("get input", data, params);
-
   data = lib.normalize(data);
+  params = params || {};
 
   debug(".get(", data['@id'], this.type.context(), ")");
 
+  // get context of type
+  var context = this.type.context();
+  // exclude any given properties from context
+  context = _.omit(context, params.exclude);
+
   return this.db.jsonld
-  .getAsync(data['@id'], this.type.context())
+  .getAsync(data['@id'], context)
+  .bind(this)
   .then(function (result) {
-    debug("get output", result)
     // TODO why is result an array?
     if (_.isArray(result)) {
-      return result[0];
+      result = result[0];
     }
+    // get relations of type
+    var relations = this.type.relations;
+    // exclude any given properties from relations
+    relations = _.omit(relations, params.exclude);
+    // for each relation, get promise of relation
+    _.each(this.type.relations, function (schema, name) {
+      result[name] = this.relation(result['@id'], name, schema);
+    }.bind(this));
+    // fulfill promises
+    return Promise.props(result);
+  })
+  .then(function (result) {
+    debug("get output", result)
     return result;
   })
   ;
@@ -135,6 +155,24 @@ Graph.prototype.remove = function (data, params) {
   })
   ;
 };
+
+Graph.prototype.relation = function (id, property, schema) {
+  debug("relation", id, property, schema);
+  
+  if (schema.reverse) {
+
+    var query = {};
+    query[schema.reverse] = id;
+
+    debug("relation query", query);
+
+    return this.graphs.get(schema.$ref).find({
+      query: query,
+      exclude: [schema.reverse],
+    })
+    ;
+  }
+}
 
 Graph.isGraph = require('./isGraph');
 

@@ -106,6 +106,52 @@ describe("#Graph", function () {
     });
   });
 
+  describe("get", function () {
+    var fixture = {
+      name: "Mikey",
+      bio: "a human from planet earth."
+    };
+    var id;
+
+    beforeEach(function () {
+      return People.create(fixture)
+      .then(function (result) {
+        id = result['@id'];
+      })
+      ;
+    });
+
+    it("should get with no params", function () {
+      return People.get(id)
+      .then(function (result) {
+        expect(Object.keys(result)).to.have.length(6);
+        expect(result).to.have.property('@context');
+        expect(result).to.have.property('@id');
+        expect(result).to.have.property('@type', "Person");
+        expect(result).to.have.property('name', fixture.name);
+        expect(result).to.have.property('bio', fixture.bio);
+        expect(result.resources).to.deep.equal([]);
+      })
+      ;
+    });
+
+    it("should get with exclude params", function () {
+      return People.get(id, {
+        exclude: "bio",
+      })
+      .then(function (result) {
+        console.log(result);
+        expect(Object.keys(result)).to.have.length(5);
+        expect(result).to.have.property('@context');
+        expect(result).to.have.property('@id');
+        expect(result).to.have.property('@type', "Person");
+        expect(result).to.have.property('name', fixture.name);
+        expect(result.resources).to.deep.equal([]);
+      })
+      ;
+    });
+  });
+
   describe("find", function () {
     it("should find based on simple query", function () {
       return People.create({
