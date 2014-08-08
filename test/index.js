@@ -2,6 +2,11 @@ var env = process.env.NODE_ENV || 'test';
 
 var expect = require('chai').expect;
 var deleteStream = require('level-delete-stream');
+var Map = require('es6-map');
+
+var mikey = {
+  name: "Mikey",
+};
 
 describe("#Graph", function () {
   var leveldb, db;
@@ -55,15 +60,18 @@ describe("#Graph", function () {
         },
       },
     });
+    var graphs = new Map();
     People = new Graph({
       id: "People",
       db: db,
       type: PersonType,
+      graphs: graphs,
     });
     Resources = new Graph({
       id: "Resources",
       db: db,
       type: ResourceType,
+      graphs: graphs,
     });
   });
 

@@ -3,6 +3,7 @@ var uuid = require('node-uuid');
 var Promise = require('bluebird');
 var jsonld = require('jsonld').promises();
 var _ = require('lodash');
+var Map = require('es6-map');
 
 var lib = require('./lib');
 
@@ -24,6 +25,11 @@ function Graph (options) {
     this.type = this.types.get(options.type);
   } else {
     this.type = this.types.use(options.type);
+  }
+
+  if (options.graphs) {
+    this.graphs = options.graphs;
+    this.graphs.set(this.type.id, this);
   }
 
   this.queryize = Promise.promisify(lib.queryize(this.db));
