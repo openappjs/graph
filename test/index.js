@@ -29,15 +29,20 @@ describe("#Graph", function () {
       id: "Person",
       type: 'object',
       prefixes: {
-        "": "http://open.vocab/",
+        "vocab": "http://open.vocab/",
       },
+      context: "vocab:Person",
       properties: {
         name: {
-          context: "name",
+          context: "vocab:name",
+          type: "string",
+        },
+        bio: {
+          context: "vocab:bio",
           type: "string",
         },
         resources: {
-          context: "hasResource",
+          context: "vocab:hasResource",
           reverse: "owner",
           $ref: "Resource",
         },
@@ -47,15 +52,16 @@ describe("#Graph", function () {
       id: "Resource",
       type: 'object',
       prefixes: {
-        "": "http://open.vocab/",
+        "vocab": "http://open.vocab/",
       },
+      context: "vocab:Resource",
       properties: {
         name: {
-          context: "name",
+          context: "vocab:name",
           type: "string",
         },
         owner: {
-          context: "isOwner",
+          context: "vocab:isOwner",
           $ref: "Person",
         },
       },
