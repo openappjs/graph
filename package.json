@@ -4,7 +4,7 @@
   "description": "OpenApp graph data store",
   "main": "index.js",
   "scripts": {
-    "test": "mocha --recursive test"
+    "test": "DEBUG=* mocha --recursive test"
   },
   "repository": {
     "type": "git",
