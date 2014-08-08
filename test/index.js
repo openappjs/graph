@@ -177,13 +177,12 @@ describe("#Graph", function () {
     it("should get with no params", function () {
       return People.get(id)
       .then(function (result) {
-        expect(Object.keys(result)).to.have.length(6);
+        expect(Object.keys(result)).to.have.length(5);
         expect(result).to.have.property('@context');
         expect(result).to.have.property('@id');
         expect(result).to.have.property('@type', "Person");
         expect(result).to.have.property('name', fixture.name);
         expect(result).to.have.property('bio', fixture.bio);
-        expect(result.resources).to.deep.equal([]);
       })
       ;
     });
@@ -193,12 +192,26 @@ describe("#Graph", function () {
         exclude: "bio",
       })
       .then(function (result) {
-        console.log(result);
-        expect(Object.keys(result)).to.have.length(5);
+        expect(Object.keys(result)).to.have.length(4);
         expect(result).to.have.property('@context');
         expect(result).to.have.property('@id');
         expect(result).to.have.property('@type', "Person");
         expect(result).to.have.property('name', fixture.name);
+      })
+      ;
+    });
+
+    it("should get with include params", function () {
+      return People.get(id, {
+        include: "resources",
+      })
+      .then(function (result) {
+        expect(Object.keys(result)).to.have.length(6);
+        expect(result).to.have.property('@context');
+        expect(result).to.have.property('@id');
+        expect(result).to.have.property('@type', "Person");
+        expect(result).to.have.property('name', fixture.name);
+        expect(result).to.have.property('bio', fixture.bio);
         expect(result.resources).to.deep.equal([]);
       })
       ;
@@ -252,7 +265,6 @@ describe("#Graph", function () {
     });
   });
 
-
   describe("relations", function () {
 
     it("should have hasMany <> belongsTo relation", function () {
@@ -274,7 +286,9 @@ describe("#Graph", function () {
       })
       .then(function (resource) {
         // get person again
-        return People.get(id);
+        return People.get(id, {
+          include: "resources",
+        });
       })
       .then(function (person) {
         expect(person).to.have.property('resources');

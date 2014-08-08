@@ -53,7 +53,7 @@ Graph.prototype.find = function (params) {
   .map(function (result) {
     return this.get(result['@id'], {
       exclude: params.exclude,
-      shallow: params.shallow,
+      include: params.include,
     });
   })
   .then(function (results) {
@@ -68,8 +68,8 @@ Graph.prototype.get = function (data, params) {
   debug("get input", data, params);
   data = lib.normalize(data);
   params = params || {};
+  params.include = params.include || [];
   params.exclude = params.exclude || [];
-  params.shallow = params.shallow || [];
 
   // get context of type
   var context = this.type.context();
@@ -86,18 +86,21 @@ Graph.prototype.get = function (data, params) {
     }
     // exclude any given properties from result
     result = _.omit(result, params.exclude);
-    // get relations of type
-    var relations = this.type.relations;
-    // exclude any given properties from relations
-    relations = _.omit(relations, params.exclude.concat(params.shallow));
-    // for each shallow relation, change id to { '@id': ... }
-    _.each(params.shallow, function (name) {
-      result[name] = { '@id': result[name] };
-    });
-    // for each relation, get promise of relation
+    // include relations
+    var relations = _.pick(this.type.relations, params.include);
+    // for any not included relations, change id to { '@id': ... }
+    _.each(result, function (value, name) {
+      if (_.contains(_.keys(this.type.relations), name) &&
+          !_.contains(params.include, name)) {
+        result[name] = { '@id': result[name] };
+      }
+    }.bind(this));
+    // for each included relation, get promise of relation
     _.each(relations, function (schema, name) {
       result[name] = this.relation(result['@id'], name, schema);
     }.bind(this));
+    // exclude any given properties
+    result = _.omit(result, params.exclude);
     // fulfill promises
     return Promise.props(result);
   })
@@ -175,7 +178,6 @@ Graph.prototype.relation = function (id, property, schema) {
 
     return this.graphs.get(schema.$ref).find({
       query: query,
-      shallow: [schema.reverse],
     })
     ;
   }
