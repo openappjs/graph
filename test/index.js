@@ -107,7 +107,9 @@ describe("#Graph", function () {
       })
       .then(function (person) {
         return People.find({
-          name: "Mikey",
+          query: {
+            name: "Mikey",
+          },
         });
       })
       .then(function (results) {
@@ -130,7 +132,9 @@ describe("#Graph", function () {
       })
       .then(function (person) {
         return People.find({
-          name: "Mikey",
+          query: {
+            name: "Mikey",
+          },
         });
       })
       .then(function (results) {
