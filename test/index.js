@@ -286,7 +286,62 @@ describe("#Graph", function () {
         expect(person.resources[0]).to.have.property('@id');
         expect(person.resources[0]).to.have.property('name', "RepRap Prusa Mendel");
         expect(person.resources[0].owner).to.deep.equal({ '@id': id });
-      });
+      })
+      ;
+    });
+
+    it("should have nested hasMany <> belongsTo relations", function () {
+
+      var personId, groupId;
+
+      // create person
+      return People.create({
+        name: "Mikey",
+      })
+      .then(function (person) {
+        // save person id
+        personId = person['@id'];
+        // create resource with person as owner
+        return Groups.create({
+          name: "Open App Ecosystem",
+        });
+      })
+      .then(function (group) {
+        // save group id
+        groupId = group['@id'];
+        // create resource with person as owner
+        return Memberships.create({
+          group: groupId,
+          member: personId,
+        });
+      })
+      .then(function (membership) {
+        // get person again
+        return People.get(personId, {
+          include: "memberships",
+        });
+      })
+      .then(function (person) {
+        expect(person).to.have.property('memberships');
+        expect(Array.isArray(person.memberships)).to.be.true;
+        expect(person.memberships).to.have.length(1);
+        expect(Object.keys(person.memberships[0])).to.have.length(5);
+        expect(person.memberships[0]).to.have.property('@context');
+        expect(person.memberships[0]).to.have.property('@type', "Membership");
+        expect(person.memberships[0]).to.have.property('@id');
+        expect(person.memberships[0]).to.have.property('member');
+        expect(person.memberships[0].member).to.deep.equal({ '@id': person.id });
+        expect(person.memberships[0]).to.have.property('group');
+        expect(Object.keys(person.memberships[0].group)).to.have.length(5);
+        expect(person.memberships[0]).to.have.property('@context');
+        expect(person.memberships[0]).to.have.property('@type', "Membership");
+        expect(person.memberships[0]).to.have.property('@id');
+        expect(person.memberships[0]).to.have.property('name', "Open App Ecosystem");
+        expect(person.memberships[0].group).to.have.property('memberships');
+        expect(Object.keys(person.memberships[0].group)).to.have.length(1);
+        expect(person.memberships[0].group[0]).to.deep.equal({ '@id': group.id });
+      })
+      ;
     });
   });
 });
