@@ -53,6 +53,7 @@ Graph.prototype.find = function (params) {
   .map(function (result) {
     return this.get(result['@id'], {
       exclude: params.exclude,
+      shallow: params.shallow,
     });
   })
   .then(function (results) {
@@ -67,13 +68,13 @@ Graph.prototype.get = function (data, params) {
   debug("get input", data, params);
   data = lib.normalize(data);
   params = params || {};
-
-  debug(".get(", data['@id'], this.type.context(), ")");
+  params.exclude = params.exclude || [];
+  params.shallow = params.shallow || [];
 
   // get context of type
   var context = this.type.context();
-  // exclude any given properties from context
-  context = _.omit(context, params.exclude);
+
+  debug(".get(", data['@id'], context, ")");
 
   return this.db.jsonld
   .getAsync(data['@id'], context)
@@ -83,12 +84,18 @@ Graph.prototype.get = function (data, params) {
     if (_.isArray(result)) {
       result = result[0];
     }
+    // exclude any given properties from result
+    result = _.omit(result, params.exclude);
     // get relations of type
     var relations = this.type.relations;
     // exclude any given properties from relations
-    relations = _.omit(relations, params.exclude);
+    relations = _.omit(relations, params.exclude.concat(params.shallow));
+    // for each shallow relation, change id to { '@id': ... }
+    _.each(params.shallow, function (name) {
+      result[name] = { '@id': result[name] };
+    });
     // for each relation, get promise of relation
-    _.each(this.type.relations, function (schema, name) {
+    _.each(relations, function (schema, name) {
       result[name] = this.relation(result['@id'], name, schema);
     }.bind(this));
     // fulfill promises
@@ -168,7 +175,7 @@ Graph.prototype.relation = function (id, property, schema) {
 
     return this.graphs.get(schema.$ref).find({
       query: query,
-      exclude: [schema.reverse],
+      shallow: [schema.reverse],
     })
     ;
   }

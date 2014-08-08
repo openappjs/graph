@@ -227,6 +227,9 @@ describe("#Graph", function () {
         expect(person).to.have.property('resources');
         expect(Array.isArray(person.resources)).to.be.true;
         expect(person.resources).to.have.length(1);
+        expect(Object.keys(person.resources[0])).to.have.length(5);
+        expect(person.resources[0]).to.have.property('@context');
+        expect(person.resources[0]).to.have.property('@type', "Resource");
         expect(person.resources[0]).to.have.property('@id');
         expect(person.resources[0]).to.have.property('name', "RepRap Prusa Mendel");
         expect(person.resources[0].owner).to.deep.equal({ '@id': id });
