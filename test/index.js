@@ -7,7 +7,7 @@ var Map = require('es6-map');
 describe("#Graph", function () {
   var leveldb, db;
   var Graph;
-  var People, Resources;
+  var People, Resources, Groups, Memberships;
 
   before(function () {
     var level = require('level-test')();
@@ -42,6 +42,11 @@ describe("#Graph", function () {
           reverse: "owner",
           $ref: "Resource",
         },
+        memberships: {
+          context: "vocab:hasMembership",
+          reverse: "member",
+          $ref: "Membership",
+        },
       },
     });
     var ResourceType = types.use({
@@ -62,6 +67,46 @@ describe("#Graph", function () {
         },
       },
     });
+    var GroupType = types.use({
+      id: "Group",
+      type: 'object',
+      prefixes: {
+        "vocab": "http://open.vocab/",
+      },
+      context: "vocab:Group",
+      properties: {
+        name: {
+          context: "vocab:name",
+          type: "string",
+        },
+        memberships: {
+          context: "vocab:hasMembership",
+          $ref: "Membership",
+        },
+      },
+    });
+    var MembershipType = types.use({
+      id: "Membership",
+      type: 'object',
+      prefixes: {
+        "vocab": "http://open.vocab/",
+      },
+      context: "vocab:Memberships",
+      properties: {
+        group: {
+          context: "vocab:organization",
+          $ref: "Group",
+        },
+        member: {
+          context: "vocab:member",
+          oneOf: [{
+            $ref: "Person",
+          }, {
+            $ref: "Group",
+          }],
+        },
+      },
+    });
     var graphs = new Map();
     People = new Graph({
       id: "People",
@@ -73,6 +118,18 @@ describe("#Graph", function () {
       id: "Resources",
       db: db,
       type: ResourceType,
+      graphs: graphs,
+    });
+    Groups = new Graph({
+      id: "Groups",
+      db: db,
+      type: GroupType,
+      graphs: graphs,
+    });
+    Memberships = new Graph({
+      id: "Memberships",
+      db: db,
+      type: MembershipType,
       graphs: graphs,
     });
   });
