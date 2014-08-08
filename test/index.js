@@ -4,10 +4,6 @@ var expect = require('chai').expect;
 var deleteStream = require('level-delete-stream');
 var Map = require('es6-map');
 
-var mikey = {
-  name: "Mikey",
-};
-
 describe("#Graph", function () {
   var leveldb, db;
   var Graph;
