@@ -344,7 +344,7 @@ describe("#Graph", function () {
         expect(person.memberships[0]).to.have.property('@type', "Membership");
         expect(person.memberships[0]).to.have.property('@id');
         expect(person.memberships[0]).to.have.property('member');
-        expect(person.memberships[0].member).to.deep.equal({ '@id': person.id });
+        expect(person.memberships[0].member).to.deep.equal({ '@id': personId });
         expect(person.memberships[0]).to.have.property('group');
         expect(Object.keys(person.memberships[0].group)).to.have.length(5);
         expect(person.memberships[0]).to.have.property('@context');
@@ -353,7 +353,7 @@ describe("#Graph", function () {
         expect(person.memberships[0]).to.have.property('name', "Open App Ecosystem");
         expect(person.memberships[0].group).to.have.property('memberships');
         expect(Object.keys(person.memberships[0].group)).to.have.length(1);
-        expect(person.memberships[0].group[0]).to.deep.equal({ '@id': group.id });
+        expect(person.memberships[0].group[0]).to.deep.equal({ '@id': groupId });
       })
       ;
     });
